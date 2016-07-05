@@ -12,11 +12,17 @@ library(jsonlite)
 sta <- read.csv("stations.csv")
 
 
+# dataset id NORMAL_DLY
+# req <- GET(paste0("http://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=NORMAL_DLY&stationid=GHCND:USC00311677&startdate=2010-01-01&enddate=2010-12-31&limit=1000&datatypeid=DLY-TMAX-NORMAL,DLY-TMIN-NORMAL"), add_headers("token" = "TDuBkJdeeDDBILwDWWxiaUcQxtoxeFNu"))
+# fromJSON(content(GET("http://www.ncdc.noaa.gov/cdo-web/api/v2/stations?datasetid=NORMAL_DLY&datacategoryid=TEMP&locationid=FIPS:37&datatypeid=DLY-TMAX-NORMAL,DLY-TMIN-NORMAL",add_headers("token" = "TDuBkJdeeDDBILwDWWxiaUcQxtoxeFNu")),as="text"))
+
 
 stn <- sta$id[47]
 req <- GET(paste0("http://www.ncdc.noaa.gov/cdo-web/api/v2/data?datasetid=GHCND&stationid=",stn,"&startdate=2016-01-01&enddate=2016-12-31&datatypeid=TMAX,TMIN&limit=1000"), add_headers("token" = "TDuBkJdeeDDBILwDWWxiaUcQxtoxeFNu"))
 json <- content(req, as = "text")
 dfd <- fromJSON(json)
+
+dfd
 
 dfdd <- dcast(dfd$results,date~datatype,value.var="value")
 
@@ -37,6 +43,10 @@ yl <- sin(phi)*dfdds$TMIN/10
 xh <- cos(phi)*dfdds$TMAX/10
 yh <- sin(phi)*dfdds$TMAX/10
 
+# xl <- cos(phi)*dfdds$'DLY-TMIN-NORMAL'/10
+# yl <- sin(phi)*dfdds$'DLY-TMIN-NORMAL'/10
+# xh <- cos(phi)*dfdds$'DLY-TMAX-NORMAL'/10
+# yh <- sin(phi)*dfdds$'DLY-TMAX-NORMAL'/10
 
 
 
@@ -49,7 +59,7 @@ text(0,0,"Durham, NC",offset=-0.5,pos=3)
 #abline(h=0);abline(v=0)
 phix <- seq(0,2*pi,length.out=100)
 
-for(v in unique(c(seq(0,min(dfdd[,2:3])/10,by=-20),seq(0,max(dfdd[,2:3])/10,by=20)))){
+for(v in unique(c(seq(0,min(dfdd[,2:3])/10,by=20),seq(0,max(dfdd[,2:3])/10,by=20)))){
   polygon(cos(phix)*(v+offset),sin(phix)*(v+offset),border="#00000020")
   text(v+offset,0,paste0(v,"°C"),pos=3,offset=-0.5)    
 }
